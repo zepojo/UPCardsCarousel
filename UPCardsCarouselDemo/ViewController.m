@@ -28,6 +28,11 @@ const static int kCardsCount = 20;
     [carousel setDelegate:self];
     [carousel setDataSource:self];
     [self.view addSubview:carousel];
+    
+    CGRect frame = carousel.labelView.frame;
+    frame.size.height += 40;
+    frame.origin.y -= 40;
+    [carousel.labelView setFrame:frame];
 }
 
 

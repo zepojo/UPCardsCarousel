@@ -114,8 +114,7 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     
     UILabel* (^setupLabel)(CGRect) = ^(CGRect frame) {
         UILabel *label = [[UILabel alloc] initWithFrame:frame];
-        //    label setFont:[UIFont systemFontOfSize:17.0f];
-        [label setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+        [label setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleBottomMargin];
         [label setTextColor:[UIColor blackColor]];
         [label setTextAlignment:NSTextAlignmentCenter];
         return label;
