@@ -20,14 +20,14 @@ const static int kCardsCount = 20;
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    UPCardsCarousel *_carousel = [[UPCardsCarousel alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
-    [_carousel setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
-    [_carousel.labelView setBackgroundColor:[UIColor colorWithRed:112./255. green:47./255. blue:168./255. alpha:1.]];
-    [_carousel setLabelFont:[UIFont boldSystemFontOfSize:17.0f]];
-    [_carousel setLabelTextColor:[UIColor whiteColor]];
-    [_carousel setDelegate:self];
-    [_carousel setDataSource:self];
-    [self.view addSubview:_carousel];
+    UPCardsCarousel *carousel = [[UPCardsCarousel alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    [carousel setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
+    [carousel.labelView setBackgroundColor:[UIColor colorWithRed:112./255. green:47./255. blue:168./255. alpha:1.]];
+    [carousel setLabelFont:[UIFont boldSystemFontOfSize:17.0f]];
+    [carousel setLabelTextColor:[UIColor whiteColor]];
+    [carousel setDelegate:self];
+    [carousel setDataSource:self];
+    [self.view addSubview:carousel];
 }
 
 

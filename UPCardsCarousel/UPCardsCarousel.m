@@ -9,12 +9,10 @@
 #import "UPCardsCarousel.h"
 
 
-const static int    kMaxVisibleCards            = 6;
-const static int    kTitlesContainerHeight      = 60;
-const static int    kHiddenDeckZPositionOffset  = 10;
-const static int    kVisibleDeckZPositionOffset = 20;
-const static int    kMovingDeckZPositionOffset  = 30;
-const static float  kSwipeAnimationDuration     = .4f;
+const static NSUInteger     kMaxVisibleCardsDefault         = 6;
+const static NSUInteger     kHiddenDeckZPositionOffset      = 10;
+const static NSTimeInterval kMovingAnimationDurationDefault = .4f;
+const static CGFloat        kTitlesContainerHeight          = 60;
 
 
 @interface UPCardsCarousel() {
@@ -23,6 +21,10 @@ const static float  kSwipeAnimationDuration     = .4f;
     NSUInteger _numberOfCards;
     NSUInteger _visibleCardIndex;
     NSUInteger _visibleCardsOffset;
+    
+    NSUInteger _hiddenDeckZPositionOffset;
+    NSUInteger _visibleDeckZPositionOffset;
+    NSUInteger _movingDeckZPositionOffset;
     
     UILabel *_firstLabel;
     UILabel *_secondLabel;
@@ -41,7 +43,9 @@ const static float  kSwipeAnimationDuration     = .4f;
     if (self) {
         [self setupElements];
         
-        _doubleTapToTop = YES;
+        [self setMaxVisibleCardsCount:kMaxVisibleCardsDefault];
+        [self setMovingAnimationDuration:kMovingAnimationDurationDefault];
+        [self setDoubleTapToTop:YES];
     }
     return self;
 }
@@ -149,7 +153,11 @@ const static float  kSwipeAnimationDuration     = .4f;
     if(_numberOfCards <= 0)
         return;
     
-    int cardsCount = (int)MIN(_numberOfCards, kMaxVisibleCards);
+    int cardsCount = (int)MIN(_numberOfCards, self.maxVisibleCardsCount);
+    
+    _hiddenDeckZPositionOffset = kHiddenDeckZPositionOffset;
+    _visibleDeckZPositionOffset = _hiddenDeckZPositionOffset + cardsCount;
+    _movingDeckZPositionOffset = _visibleDeckZPositionOffset + cardsCount;
     
     NSInteger start = index - cardsCount/2;
     NSInteger end = index + cardsCount/2;
@@ -169,7 +177,7 @@ const static float  kSwipeAnimationDuration     = .4f;
         BOOL visible = (i >= index);
         [self positionCard:card toVisible:visible];
         NSUInteger offset = i - start;
-        NSInteger zIndex = visible ? kVisibleDeckZPositionOffset+(cardsCount-1-offset) : kHiddenDeckZPositionOffset+offset;
+        NSInteger zIndex = visible ? _visibleDeckZPositionOffset+(cardsCount-1-offset) : _hiddenDeckZPositionOffset+offset;
         [card.layer setZPosition:zIndex];
         
         [_cardsContainer addSubview:card];
@@ -290,16 +298,16 @@ const static float  kSwipeAnimationDuration     = .4f;
     UIView *movedCard = [_visibleCards objectAtIndex:_visibleCardIndex];
     NSUInteger zIndex = [_visibleCards count]-1 - _visibleCardIndex;
     
-    [UIView animateWithDuration:kSwipeAnimationDuration
+    [UIView animateWithDuration:self.movingAnimationDuration
                           delay:0
                         options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction
                      animations:^{
         [self positionCard:movedCard toVisible:YES];
-        [movedCard.layer setZPosition:kMovingDeckZPositionOffset + zIndex];
+        [movedCard.layer setZPosition:_movingDeckZPositionOffset + zIndex];
     } completion:^(BOOL finished) {
 //        [movedCard.layer setZPosition:kVisibleDeckZPositionOffset + zIndex];
         NSUInteger movedCardIndex = [_visibleCards indexOfObject:movedCard];
-        NSInteger zPosition = kVisibleDeckZPositionOffset;
+        NSInteger zPosition = _visibleDeckZPositionOffset;
         if(movedCardIndex < [_visibleCards count] - 1) {
             UIView *nextCard = [_visibleCards objectAtIndex:movedCardIndex+1];
             zPosition = [nextCard.layer zPosition] + 1;
@@ -307,7 +315,7 @@ const static float  kSwipeAnimationDuration     = .4f;
         [movedCard.layer setZPosition:zPosition];
     }];
     
-    if([_visibleCards count] == kMaxVisibleCards && _visibleCardIndex < [_visibleCards count] / 2)
+    if([_visibleCards count] == self.maxVisibleCardsCount && _visibleCardIndex < [_visibleCards count] / 2)
         [self addInfiniteCardsForWay:@-1];
     
     if([_dataSource respondsToSelector:@selector(carousel:titleForCardAtIndex:)]) {
@@ -325,16 +333,15 @@ const static float  kSwipeAnimationDuration     = .4f;
     UIView *movedCard = [_visibleCards objectAtIndex:_visibleCardIndex];
     NSUInteger zIndex = _visibleCardIndex;
     
-    [UIView animateWithDuration:kSwipeAnimationDuration
+    [UIView animateWithDuration:self.movingAnimationDuration
                           delay:0
                         options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction
                      animations:^{
         [self positionCard:movedCard toVisible:NO];
-        [movedCard.layer setZPosition:kMovingDeckZPositionOffset + zIndex];
+        [movedCard.layer setZPosition:_movingDeckZPositionOffset + zIndex];
     } completion:^(BOOL finished) {
-//        [movedCard.layer setZPosition:kHiddenDeckZPositionOffset + zIndex];
         NSUInteger movedCardIndex = [_visibleCards indexOfObject:movedCard];
-        NSInteger zPosition = kHiddenDeckZPositionOffset;
+        NSInteger zPosition = _hiddenDeckZPositionOffset;
         if(movedCardIndex > 0) {
             UIView *previousCard = [_visibleCards objectAtIndex:movedCardIndex-1];
             zPosition = [previousCard.layer zPosition] + 1;
@@ -351,7 +358,7 @@ const static float  kSwipeAnimationDuration     = .4f;
             [_delegate carousel:self didDisplayCardAtIndex:_visibleCardsOffset+_visibleCardIndex];
     }
     
-    if([_visibleCards count] == kMaxVisibleCards && _visibleCardIndex > [_visibleCards count] / 2)
+    if([_visibleCards count] == self.maxVisibleCardsCount && _visibleCardIndex > [_visibleCards count] / 2)
         [self addInfiniteCardsForWay:@1];
     
     if([_dataSource respondsToSelector:@selector(carousel:titleForCardAtIndex:)]) {
@@ -387,7 +394,7 @@ const static float  kSwipeAnimationDuration     = .4f;
         
         /* Adding new card under visible ones */
         NSUInteger newCardVisibleIndex = (wayValue == -1) ? 0 : [_visibleCards count];
-        NSInteger newCardZPosition = (wayValue == -1) ? kHiddenDeckZPositionOffset-1 : kVisibleDeckZPositionOffset-1;
+        NSInteger newCardZPosition = (wayValue == -1) ? _hiddenDeckZPositionOffset-1 : _visibleDeckZPositionOffset-1;
         UIView *newCard = [_dataSource carousel:self viewForCardAtIndex:newCardIndex];
         [_visibleCards insertObject:newCard atIndex:newCardVisibleIndex];
         [newCard setUserInteractionEnabled:YES];
@@ -402,12 +409,12 @@ const static float  kSwipeAnimationDuration     = .4f;
             if((wayValue == -1 && i == _visibleCardIndex) || (wayValue == 1 && i == _visibleCardIndex-1))
                 continue;
             UIImageView *card = [_visibleCards objectAtIndex:i];
-            NSInteger zIndex = (i < _visibleCardIndex) ? kHiddenDeckZPositionOffset+i : kVisibleDeckZPositionOffset+([_visibleCards count]-1-i);
+            NSInteger zIndex = (i < _visibleCardIndex) ? _hiddenDeckZPositionOffset+i : _visibleDeckZPositionOffset+([_visibleCards count]-1-i);
             [card.layer setZPosition:zIndex];
         }
         
         /* Animate the appearance (disappearance) of the new (old) card */
-        [UIView animateWithDuration:kSwipeAnimationDuration
+        [UIView animateWithDuration:self.movingAnimationDuration
                               delay:0.0f
                             options:UIViewAnimationOptionAllowUserInteraction
                          animations:^{
@@ -479,7 +486,7 @@ const static float  kSwipeAnimationDuration     = .4f;
     
     _activeLabelIndex = (_activeLabelIndex+1)%2;
     
-    [UIView animateWithDuration:kSwipeAnimationDuration
+    [UIView animateWithDuration:self.movingAnimationDuration
                           delay:0
                         options:UIViewAnimationOptionCurveEaseInOut
                      animations:^{
