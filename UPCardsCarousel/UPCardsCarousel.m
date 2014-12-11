@@ -221,7 +221,7 @@ const static float  kSwipeAnimationDuration     = .4f;
     }
     
     int radians = arc4random()%20 - 10;
-    float angle = (M_PI * (angle) / 180.0);
+    float angle = (M_PI * (radians) / 180.0);
     [card.layer setAffineTransform:CGAffineTransformMakeRotation(angle)];
     [card setCenter:center];
 }
