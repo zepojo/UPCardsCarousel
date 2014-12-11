@@ -22,17 +22,12 @@ const static int kCardsCount = 20;
     
     UPCardsCarousel *carousel = [[UPCardsCarousel alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
     [carousel setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
-    [carousel.labelView setBackgroundColor:[UIColor colorWithRed:112./255. green:47./255. blue:168./255. alpha:1.]];
+    [carousel.labelBanner setBackgroundColor:[UIColor colorWithRed:112./255. green:47./255. blue:168./255. alpha:1.]];
     [carousel setLabelFont:[UIFont boldSystemFontOfSize:17.0f]];
     [carousel setLabelTextColor:[UIColor whiteColor]];
     [carousel setDelegate:self];
     [carousel setDataSource:self];
     [self.view addSubview:carousel];
-    
-    CGRect frame = carousel.labelView.frame;
-    frame.size.height += 40;
-    frame.origin.y -= 40;
-    [carousel.labelView setFrame:frame];
 }
 
 

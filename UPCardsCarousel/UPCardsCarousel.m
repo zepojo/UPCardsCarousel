@@ -108,9 +108,9 @@ const static CGFloat        kTitlesContainerHeight          = 60;
 - (void)setupTitlesView
 {
     CGRect frame = CGRectMake(0, self.frame.size.height - kTitlesContainerHeight, self.frame.size.width, kTitlesContainerHeight);
-    _labelView = [[UIView alloc] initWithFrame:frame];
-    [_labelView setAutoresizingMask:UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleWidth];
-    [_labelView setBackgroundColor:[UIColor whiteColor]];
+    _labelBanner = [[UIView alloc] initWithFrame:frame];
+    [_labelBanner setAutoresizingMask:UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleWidth];
+    [_labelBanner setBackgroundColor:[UIColor whiteColor]];
     
     UILabel* (^setupLabel)(CGRect) = ^(CGRect frame) {
         UILabel *label = [[UILabel alloc] initWithFrame:frame];
@@ -121,12 +121,12 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     };
     _firstLabel = setupLabel(CGRectMake(0, 0, frame.size.width, frame.size.height));
     _secondLabel = setupLabel(CGRectMake(frame.size.width, 0, frame.size.width, frame.size.height));
-    [_labelView addSubview:_firstLabel];
-    [_labelView addSubview:_secondLabel];
+    [_labelBanner addSubview:_firstLabel];
+    [_labelBanner addSubview:_secondLabel];
     
     _activeLabelIndex = 0;
     
-    [self addSubview:_labelView];
+    [self addSubview:_labelBanner];
 }
 
 

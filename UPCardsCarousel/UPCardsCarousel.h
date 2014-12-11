@@ -18,7 +18,7 @@
 @property (nonatomic, unsafe_unretained) IBOutlet id<UPCardsCarouselDataSource> dataSource;
 @property (nonatomic, unsafe_unretained) IBOutlet id<UPCardsCarouselDelegate> delegate;
 
-@property (nonatomic, strong) UIView *labelView;
+@property (nonatomic, strong)    UIView *labelBanner;
 @property (nonatomic, readwrite) NSUInteger maxVisibleCardsCount;
 @property (nonatomic, readwrite) NSTimeInterval movingAnimationDuration;
 @property (nonatomic, readwrite) BOOL doubleTapToTop;
