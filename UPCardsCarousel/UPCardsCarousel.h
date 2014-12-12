@@ -59,9 +59,9 @@
 
 @optional
 - (void)carousel:(UPCardsCarousel *)carousel didTouchCardAtIndex:(NSUInteger)index;
-//- (void)carousel:(UPCardsCarousel *)carousel willDisplayCardAtIndex:(NSUInteger)index;
+- (void)carousel:(UPCardsCarousel *)carousel willDisplayCardAtIndex:(NSUInteger)index;
 - (void)carousel:(UPCardsCarousel *)carousel didDisplayCardAtIndex:(NSUInteger)index;
-//- (void)carousel:(UPCardsCarousel *)carousel willHideCardAtIndex:(NSUInteger)index;
+- (void)carousel:(UPCardsCarousel *)carousel willHideCardAtIndex:(NSUInteger)index;
 - (void)carousel:(UPCardsCarousel *)carousel didHideCardAtIndex:(NSUInteger)index;
 
 @end

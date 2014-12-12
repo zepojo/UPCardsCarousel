@@ -192,8 +192,11 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     }
     
     if(_delegate) {
+        NSUInteger displayedCardIndex = _visibleCardsOffset+_visibleCardIndex;
+        if([_delegate respondsToSelector:@selector(carousel:willDisplayCardAtIndex:)])
+            [_delegate carousel:self willDisplayCardAtIndex:displayedCardIndex];
         if([_delegate respondsToSelector:@selector(carousel:didDisplayCardAtIndex:)])
-            [_delegate carousel:self didDisplayCardAtIndex:_visibleCardsOffset+_visibleCardIndex];
+            [_delegate carousel:self didDisplayCardAtIndex:displayedCardIndex];
     }
 }
 
@@ -287,11 +290,13 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     
     _visibleCardIndex--;
     
+    NSUInteger displayedCardIndex = _visibleCardsOffset+_visibleCardIndex;
+    NSUInteger hiddenCardIndex = displayedCardIndex+1;
     if(_delegate) {
-        if([_delegate respondsToSelector:@selector(carousel:didHideCardAtIndex:)])
-            [_delegate carousel:self didHideCardAtIndex:_visibleCardsOffset+_visibleCardIndex+1];
-        if([_delegate respondsToSelector:@selector(carousel:didDisplayCardAtIndex:)])
-            [_delegate carousel:self didDisplayCardAtIndex:_visibleCardsOffset+_visibleCardIndex];
+        if([_delegate respondsToSelector:@selector(carousel:willHideCardAtIndex:)])
+            [_delegate carousel:self willHideCardAtIndex:hiddenCardIndex];
+        if([_delegate respondsToSelector:@selector(carousel:willDisplayCardAtIndex:)])
+            [_delegate carousel:self willDisplayCardAtIndex:displayedCardIndex];
     }
     
     UIView *movedCard = [_visibleCards objectAtIndex:_visibleCardIndex];
@@ -304,7 +309,6 @@ const static CGFloat        kTitlesContainerHeight          = 60;
         [self positionCard:movedCard toVisible:YES];
         [movedCard.layer setZPosition:_movingDeckZPositionOffset + zIndex];
     } completion:^(BOOL finished) {
-//        [movedCard.layer setZPosition:kVisibleDeckZPositionOffset + zIndex];
         NSUInteger movedCardIndex = [_visibleCards indexOfObject:movedCard];
         NSInteger zPosition = _visibleDeckZPositionOffset;
         if(movedCardIndex < [_visibleCards count] - 1) {
@@ -312,6 +316,13 @@ const static CGFloat        kTitlesContainerHeight          = 60;
             zPosition = [nextCard.layer zPosition] + 1;
         }
         [movedCard.layer setZPosition:zPosition];
+        
+        if(_delegate) {
+            if([_delegate respondsToSelector:@selector(carousel:didHideCardAtIndex:)])
+                [_delegate carousel:self didHideCardAtIndex:hiddenCardIndex];
+            if([_delegate respondsToSelector:@selector(carousel:didDisplayCardAtIndex:)])
+                [_delegate carousel:self didDisplayCardAtIndex:displayedCardIndex];
+        }
     }];
     
     if([_visibleCards count] == self.maxVisibleCardsCount && _visibleCardIndex < [_visibleCards count] / 2)
@@ -332,6 +343,17 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     UIView *movedCard = [_visibleCards objectAtIndex:_visibleCardIndex];
     NSUInteger zIndex = _visibleCardIndex;
     
+    _visibleCardIndex++;
+    
+    NSUInteger displayedCardIndex = _visibleCardsOffset+_visibleCardIndex;
+    NSUInteger hiddenCardIndex = displayedCardIndex-1;
+    if(_delegate) {
+        if([_delegate respondsToSelector:@selector(carousel:willHideCardAtIndex:)])
+            [_delegate carousel:self willHideCardAtIndex:hiddenCardIndex];
+        if([_delegate respondsToSelector:@selector(carousel:willDisplayCardAtIndex:)])
+            [_delegate carousel:self willDisplayCardAtIndex:displayedCardIndex];
+    }
+    
     [UIView animateWithDuration:self.movingAnimationDuration
                           delay:0
                         options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction
@@ -346,16 +368,14 @@ const static CGFloat        kTitlesContainerHeight          = 60;
             zPosition = [previousCard.layer zPosition] + 1;
         }
         [movedCard.layer setZPosition:zPosition];
+        
+        if(_delegate) {
+            if([_delegate respondsToSelector:@selector(carousel:didHideCardAtIndex:)])
+                [_delegate carousel:self didHideCardAtIndex:hiddenCardIndex];
+            if([_delegate respondsToSelector:@selector(carousel:didDisplayCardAtIndex:)])
+                [_delegate carousel:self didDisplayCardAtIndex:displayedCardIndex];
+        }
     }];
-    
-    _visibleCardIndex++;
-    
-    if(_delegate) {
-        if([_delegate respondsToSelector:@selector(carousel:didHideCardAtIndex:)])
-            [_delegate carousel:self didHideCardAtIndex:_visibleCardsOffset+_visibleCardIndex-1];
-        if([_delegate respondsToSelector:@selector(carousel:didDisplayCardAtIndex:)])
-            [_delegate carousel:self didDisplayCardAtIndex:_visibleCardsOffset+_visibleCardIndex];
-    }
     
     if([_visibleCards count] == self.maxVisibleCardsCount && _visibleCardIndex > [_visibleCards count] / 2)
         [self addInfiniteCardsForWay:@1];
