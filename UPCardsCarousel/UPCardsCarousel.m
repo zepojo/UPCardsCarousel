@@ -363,7 +363,7 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     } completion:^(BOOL finished) {
         NSUInteger movedCardIndex = [_visibleCards indexOfObject:movedCard];
         NSInteger zPosition = _hiddenDeckZPositionOffset;
-        if(movedCardIndex > 0) {
+        if(movedCardIndex > 0 && movedCardIndex < [_visibleCards count]) {
             UIView *previousCard = [_visibleCards objectAtIndex:movedCardIndex-1];
             zPosition = [previousCard.layer zPosition] + 1;
         }
