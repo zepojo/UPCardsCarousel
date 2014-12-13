@@ -10,6 +10,12 @@
 
 
 
+typedef enum {
+    UPCardsCarouselLabelBannerPosition_top = 0,
+    UPCardsCarouselLabelBannerPosition_bottom
+} UPCardsCarouselLabelBannerPosition_e;
+
+
 @protocol UPCardsCarouselDataSource, UPCardsCarouselDelegate;
 
 
@@ -18,10 +24,11 @@
 @property (nonatomic, unsafe_unretained) IBOutlet id<UPCardsCarouselDataSource> dataSource;
 @property (nonatomic, unsafe_unretained) IBOutlet id<UPCardsCarouselDelegate> delegate;
 
-@property (nonatomic, strong)    UIView *labelBanner;
 @property (nonatomic, readwrite) NSUInteger maxVisibleCardsCount;
 @property (nonatomic, readwrite) NSTimeInterval movingAnimationDuration;
 @property (nonatomic, readwrite) BOOL doubleTapToTop;
+
+@property (nonatomic, strong)    UIView *labelBanner;
 
 
 - (void)reloadData;
@@ -33,6 +40,7 @@
 
 - (void)setLabelFont:(UIFont *)font;
 - (void)setLabelTextColor:(UIColor*)color;
+- (void)setLabelBannerPosition:(UPCardsCarouselLabelBannerPosition_e)labelBannerPosition;
 
 @end
 

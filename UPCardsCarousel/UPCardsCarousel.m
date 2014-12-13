@@ -29,6 +29,7 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     UILabel *_firstLabel;
     UILabel *_secondLabel;
     NSInteger _activeLabelIndex;
+    UPCardsCarouselLabelBannerPosition_e _labelBannerPosition;
 }
 
 @end
@@ -43,6 +44,8 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     if (self) {
         [self setupElements];
         
+        /* Default values */
+        [self setLabelBannerPosition:UPCardsCarouselLabelBannerPosition_bottom];
         [self setMaxVisibleCardsCount:kMaxVisibleCardsDefault];
         [self setMovingAnimationDuration:kMovingAnimationDurationDefault];
         [self setDoubleTapToTop:YES];
@@ -107,9 +110,9 @@ const static CGFloat        kTitlesContainerHeight          = 60;
 
 - (void)setupTitlesView
 {
-    CGRect frame = CGRectMake(0, self.frame.size.height - kTitlesContainerHeight, self.frame.size.width, kTitlesContainerHeight);
+    CGRect frame = CGRectMake(0, 0, self.frame.size.width, kTitlesContainerHeight);
     _labelBanner = [[UIView alloc] initWithFrame:frame];
-    [_labelBanner setAutoresizingMask:UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleWidth];
+    [_labelBanner setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin];
     [_labelBanner setBackgroundColor:[UIColor whiteColor]];
     
     UILabel* (^setupLabel)(CGRect) = ^(CGRect frame) {
@@ -546,6 +549,33 @@ const static CGFloat        kTitlesContainerHeight          = 60;
 {
     [_firstLabel setTextColor:color];
     [_secondLabel setTextColor:color];
+}
+
+
+- (void)setLabelBannerPosition:(UPCardsCarouselLabelBannerPosition_e)labelBannerPosition
+{
+    _labelBannerPosition = labelBannerPosition;
+    
+    CGRect cardsContainerFrame = _cardsContainer.frame;
+    CGRect labelBannerFrame = _labelBanner.frame;
+    UIViewAutoresizing resizingMarginMask;
+    
+    switch (_labelBannerPosition) {
+        case UPCardsCarouselLabelBannerPosition_top:
+            cardsContainerFrame.origin.y = kTitlesContainerHeight;
+            labelBannerFrame.origin.y = 0;
+            resizingMarginMask = UIViewAutoresizingFlexibleBottomMargin;
+            break;
+        case UPCardsCarouselLabelBannerPosition_bottom:
+            cardsContainerFrame.origin.y = 0;
+            labelBannerFrame.origin.y = self.frame.size.height - kTitlesContainerHeight;
+            resizingMarginMask = UIViewAutoresizingFlexibleTopMargin;
+            break;
+    }
+    
+    [_cardsContainer setFrame:cardsContainerFrame];
+    [_labelBanner setFrame:labelBannerFrame];
+    [_labelBanner setAutoresizingMask:UIViewAutoresizingFlexibleWidth|resizingMarginMask];
 }
 
 @end
