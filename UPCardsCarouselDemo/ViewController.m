@@ -17,6 +17,7 @@ const static int kCardsCount = 20;
 
 @implementation ViewController
 
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -28,11 +29,12 @@ const static int kCardsCount = 20;
     [carousel setDelegate:self];
     [carousel setDataSource:self];
     [self.view addSubview:carousel];
+    
 }
 
 
-
 #pragma mark - CardsCarouselDataSource Methods
+
 - (NSUInteger)numberOfCardsInCarousel:(UPCardsCarousel *)carousel
 {
     return kCardsCount;
@@ -44,7 +46,7 @@ const static int kCardsCount = 20;
     return [self createCardViewWithLabel:label];
 }
 
-- (NSString*)carousel:(UPCardsCarousel *)carousel titleForCardAtIndex:(NSUInteger)index
+- (NSString*)carousel:(UPCardsCarousel *)carousel labelForCardAtIndex:(NSUInteger)index
 {
     return [NSString stringWithFormat:@"Card %i", (int)index];
 }
