@@ -38,6 +38,7 @@ const static CGFloat        kTitlesContainerHeight          = 60;
 
 @implementation UPCardsCarousel
 
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -57,7 +58,6 @@ const static CGFloat        kTitlesContainerHeight          = 60;
 {
     [_cardsContainer removeObserver:self forKeyPath:@"frame"];
 }
-
 
 
 - (void)setDataSource:(id<UPCardsCarouselDataSource>)dataSource
@@ -102,9 +102,6 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     [doubleTap setNumberOfTapsRequired:2];
     [self addGestureRecognizer:doubleTap];
     
-//    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didMove:)];
-//    [self addGestureRecognizer:panGesture];
-    
     [self addSubview:_cardsContainer];
 }
 
@@ -132,6 +129,8 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     [self addSubview:_labelBanner];
 }
 
+
+#pragma mark - Data Management
 
 - (void)reloadData
 {
@@ -203,45 +202,12 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     }
 }
 
-
 - (void)reloadNumberOfCards
 {
     _numberOfCards = [_dataSource numberOfCardsInCarousel:self];
 }
 
-
-- (UIView*)cardAtIndex:(NSUInteger)index
-{
-    NSInteger localIndex = index - _visibleCardsOffset;
-    
-    if(localIndex < 0 || localIndex >= _numberOfCards)
-        return nil;
-    
-    return [_visibleCards objectAtIndex:localIndex];
-}
-
-
-#pragma mark - UI Helpers
-
-- (void)positionCard:(UIView*)card toVisible:(BOOL)visible
-{
-    CGPoint center;
-    if(visible) {
-        center = CGPointMake(10+_cardsContainer.frame.size.width/2, _cardsContainer.frame.size.height/2);
-    } else {
-        int yOffset = arc4random()%20 - 10;
-        center = CGPointMake(40-card.frame.size.width/2, _cardsContainer.frame.size.height/2 + yOffset);
-    }
-    
-    int radians = arc4random()%20 - 10;
-    float angle = (M_PI * (radians) / 180.0);
-    [card.layer setAffineTransform:CGAffineTransformMakeRotation(angle)];
-    [card setCenter:center];
-}
-
-
-
-- (void)updateCardContentAtIndex:(NSUInteger)index
+- (void)reloadCardAtIndex:(NSUInteger)index
 {
     NSInteger localIndex = index - _visibleCardsOffset;
     
@@ -262,12 +228,25 @@ const static CGFloat        kTitlesContainerHeight          = 60;
 }
 
 
+- (UIView*)cardAtIndex:(NSUInteger)index
+{
+    NSInteger localIndex = index - _visibleCardsOffset;
+    
+    if(localIndex < 0 || localIndex >= _numberOfCards)
+        return nil;
+    
+    return [_visibleCards objectAtIndex:localIndex];
+}
+
+
+#pragma mark - UI Helpers
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if([object isEqual:_cardsContainer] && [keyPath isEqualToString:@"frame"]) {
-        /* When the cards container's frame changes, we need to re-center the cards.
+        /* When the cards container's frame changes, need to re-center the cards.
          * Setting a flexible top margin auto-resizing mask to the cards doesn't work.
-         * So we have to do it manually.
+         * So do it manually.
          */
         for(int i = 0; i < [_visibleCards count]; i++) {
             UIImageView *card = [_visibleCards objectAtIndex:i];
@@ -283,8 +262,77 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     }
 }
 
+- (void)positionCard:(UIView*)card toVisible:(BOOL)visible
+{
+    CGPoint center;
+    if(visible) {
+        center = CGPointMake(10+_cardsContainer.frame.size.width/2, _cardsContainer.frame.size.height/2);
+    } else {
+        int yOffset = arc4random()%20 - 10;
+        center = CGPointMake(40-card.frame.size.width/2, _cardsContainer.frame.size.height/2 + yOffset);
+    }
+    
+    int radians = arc4random()%20 - 10;
+    float angle = (M_PI * (radians) / 180.0);
+    [card.layer setAffineTransform:CGAffineTransformMakeRotation(angle)];
+    [card setCenter:center];
+}
 
-#pragma mark - Cards Animations
+/*
+ If the max number of cards is displayed, the dataSource
+ may have more cards to supply.
+ When at the middle of the deck, look for an additional
+ card in the dataSource. If there is one, add it under
+ the visible or the hidden deck, according to the swipe way.
+ */
+- (void)addInfiniteCardsForWay:(NSNumber*)way
+{
+    // way = -1 -> previous | way = 1 -> next
+    NSUInteger wayValue = [way integerValue];
+    
+    NSInteger newCardOffset = (wayValue == -1) ? -1 : [_visibleCards count];
+    NSInteger newCardIndex = _visibleCardsOffset + newCardOffset;
+    
+    if((wayValue == -1 && newCardIndex >= 0) || (wayValue == 1 && newCardIndex < _numberOfCards)) {
+        NSInteger oldCardIndex = (wayValue == -1) ? [_visibleCards count]-1 : 0;
+        UIImageView *oldCard = [_visibleCards objectAtIndex:oldCardIndex];
+        [_visibleCards removeObjectAtIndex:oldCardIndex];
+        _visibleCardIndex += (wayValue*-1);
+        _visibleCardsOffset += wayValue;
+        
+        NSUInteger newCardVisibleIndex = (wayValue == -1) ? 0 : [_visibleCards count];
+        NSInteger newCardZPosition = (wayValue == -1) ? _hiddenDeckZPositionOffset-1 : _visibleDeckZPositionOffset-1;
+        UIView *newCard = [_dataSource carousel:self viewForCardAtIndex:newCardIndex];
+        [_visibleCards insertObject:newCard atIndex:newCardVisibleIndex];
+        [newCard setUserInteractionEnabled:YES];
+        [self positionCard:newCard toVisible:(wayValue == 1)];
+        [newCard.layer setZPosition:newCardZPosition];
+        [newCard setAlpha:0.0f];
+        [_cardsContainer addSubview:newCard];
+        
+        for(int i = 0; i < [_visibleCards count]; i++) {
+            // Don't recompute the moving card z-index, it will be set at the end of the animation
+            if((wayValue == -1 && i == _visibleCardIndex) || (wayValue == 1 && i == _visibleCardIndex-1))
+                continue;
+            UIImageView *card = [_visibleCards objectAtIndex:i];
+            NSInteger zIndex = (i < _visibleCardIndex) ? _hiddenDeckZPositionOffset+i : _visibleDeckZPositionOffset+([_visibleCards count]-1-i);
+            [card.layer setZPosition:zIndex];
+        }
+        
+        [UIView animateWithDuration:self.movingAnimationDuration
+                              delay:0.0f
+                            options:UIViewAnimationOptionAllowUserInteraction
+                         animations:^{
+                             [newCard setAlpha:1.0f];
+                             [oldCard setAlpha:0.0f];
+                         } completion:^(BOOL finished) {
+                             [oldCard removeFromSuperview];
+                         }];
+    }
+}
+
+
+#pragma mark - Cards Interactions
 
 - (void)didSwipeToPrevious:(UISwipeGestureRecognizer*)swipeGesture
 {
@@ -389,68 +437,20 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     }
 }
 
-
-
-/*  
- If the max number of cards is displayed, the dataSource
- may have more cards to supply.
- When at the middle of the deck, we will look for a
- additional card in the dataSource. If there is one, we add it
- under the visible or the hidden deck, according to the swipe way.
- */
-- (void)addInfiniteCardsForWay:(NSNumber*)way
+- (void)didDoubleTap:(UITapGestureRecognizer*)tapGesture
 {
-    // way = -1 -> previous | way = 1 -> next
-    NSUInteger wayValue = [way integerValue];
+    if(_visibleCardIndex == 0)
+        return;
     
-    NSInteger newCardOffset = (wayValue == -1) ? -1 : [_visibleCards count];
-    NSInteger newCardIndex = _visibleCardsOffset + newCardOffset;
-
-    if((wayValue == -1 && newCardIndex >= 0) || (wayValue == 1 && newCardIndex < _numberOfCards)) {
-        /* Removing an old card */
-        NSInteger oldCardIndex = (wayValue == -1) ? [_visibleCards count]-1 : 0;
-        UIImageView *oldCard = [_visibleCards objectAtIndex:oldCardIndex];
-        [_visibleCards removeObjectAtIndex:oldCardIndex];
-        _visibleCardIndex += (wayValue*-1);
-        _visibleCardsOffset += wayValue;
-        
-        /* Adding new card under visible ones */
-        NSUInteger newCardVisibleIndex = (wayValue == -1) ? 0 : [_visibleCards count];
-        NSInteger newCardZPosition = (wayValue == -1) ? _hiddenDeckZPositionOffset-1 : _visibleDeckZPositionOffset-1;
-        UIView *newCard = [_dataSource carousel:self viewForCardAtIndex:newCardIndex];
-        [_visibleCards insertObject:newCard atIndex:newCardVisibleIndex];
-        [newCard setUserInteractionEnabled:YES];
-        [self positionCard:newCard toVisible:(wayValue == 1)];
-        [newCard.layer setZPosition:newCardZPosition];
-        [newCard setAlpha:0.0f];
-        [_cardsContainer addSubview:newCard];
-        
-        /* Recompute the z-indexes */
-        for(int i = 0; i < [_visibleCards count]; i++) {
-            // Don't recompute the moving card z-index, it will be set at the end of the animation
-            if((wayValue == -1 && i == _visibleCardIndex) || (wayValue == 1 && i == _visibleCardIndex-1))
-                continue;
-            UIImageView *card = [_visibleCards objectAtIndex:i];
-            NSInteger zIndex = (i < _visibleCardIndex) ? _hiddenDeckZPositionOffset+i : _visibleDeckZPositionOffset+([_visibleCards count]-1-i);
-            [card.layer setZPosition:zIndex];
-        }
-        
-        /* Animate the appearance (disappearance) of the new (old) card */
-        [UIView animateWithDuration:self.movingAnimationDuration
-                              delay:0.0f
-                            options:UIViewAnimationOptionAllowUserInteraction
-                         animations:^{
-            [newCard setAlpha:1.0f];
-            [oldCard setAlpha:0.0f];
-        } completion:^(BOOL finished) {
-            [oldCard removeFromSuperview];
-        }];
+    if(!_doubleTapToTop)
+        return;
+    
+    CGPoint touchLocation = [tapGesture locationInView:self];
+    UIView *card = [_visibleCards objectAtIndex:_visibleCardIndex - 1];
+    if(CGRectContainsPoint(card.frame, touchLocation)) {
+        [self reloadData];
     }
 }
-
-
-
-#pragma mark - Interactions
 
 - (void)didTouchCard:(UITapGestureRecognizer*)tapGesture
 {
@@ -468,22 +468,6 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     }
 }
 
-- (void)didDoubleTap:(UITapGestureRecognizer*)tapGesture
-{
-    if(_visibleCardIndex == 0)
-        return;
-    
-    if(!_doubleTapToTop)
-        return;
-    
-    CGPoint touchLocation = [tapGesture locationInView:self];
-    UIView *card = [_visibleCards objectAtIndex:_visibleCardIndex - 1];
-    if(CGRectContainsPoint(card.frame, touchLocation)) {
-        [self reloadData];
-    }
-}
-
-
 
 #pragma mark - Titles Animations
 
@@ -491,10 +475,12 @@ const static CGFloat        kTitlesContainerHeight          = 60;
 {
     [self showLabelWithText:text way:1];
 }
+
 - (void)showPreviousLabelWithText:(NSString*)text
 {
     [self showLabelWithText:text way:-1];
 }
+
 - (void)showLabelWithText:(NSString*)text way:(int)way
 {
     UILabel *activeLabel = (_activeLabelIndex == 0) ? _firstLabel : _secondLabel;
@@ -519,21 +505,6 @@ const static CGFloat        kTitlesContainerHeight          = 60;
                          }
                      } completion:NULL];
 }
-
-
-#pragma mark - Test
-
-//- (void) didMove:(UIPanGestureRecognizer*)gesture
-//{
-//    if ([gesture state] == UIGestureRecognizerStateChanged) {
-//        UIView *card = [_visibleCards objectAtIndex:_visibleCardIndex];
-//        CGPoint center = card.center;
-//        CGPoint translation = [gesture translationInView:gesture.view];
-//        card.center = CGPointMake(center.x + translation.x,
-//                                  center.y);
-//        [gesture setTranslation:CGPointZero inView:card];
-//    }
-//}
 
 
 #pragma mark - Customization

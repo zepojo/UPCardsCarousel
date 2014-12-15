@@ -31,12 +31,19 @@ typedef enum {
 @property (nonatomic, strong)    UIView *labelBanner;
 
 
+/* Reloads the carousel data and recreates the visible cards
+ * Moves to the top of the cards deck */
 - (void)reloadData;
+/* Reloads the carousel data and recreates the visible cards
+ * Moves to the specified index in the cards deck */
 - (void)reloadDataWithCurrentIndex:(NSUInteger)index;
+/* Reloads only the number of cards in the carousel
+ * Doesn't change the visible cards */
 - (void)reloadNumberOfCards;
+/* Recreates the card at the specified index */
+- (void)reloadCardAtIndex:(NSUInteger)index;
 
 - (UIView*)cardAtIndex:(NSUInteger)index;
-- (void)updateCardContentAtIndex:(NSUInteger)index;
 
 - (void)setLabelFont:(UIFont *)font;
 - (void)setLabelTextColor:(UIColor*)color;
@@ -45,9 +52,6 @@ typedef enum {
 @end
 
 
-/*
-    UPCardsCarousel DataSource Protocol
-*/
 @protocol UPCardsCarouselDataSource <NSObject>
 
 @required
@@ -55,21 +59,19 @@ typedef enum {
 - (UIView *)carousel:(UPCardsCarousel *)carousel viewForCardAtIndex:(NSUInteger)index;
 
 @optional
+/* If the data source doesn't implement this method, the title banner will not be displayed */
 - (NSString *)carousel:(UPCardsCarousel *)carousel titleForCardAtIndex:(NSUInteger)index;
 
 @end
 
 
-/* 
-    UPCardsCarousel Delegate Protocol
-*/
 @protocol UPCardsCarouselDelegate <NSObject>
 
 @optional
 - (void)carousel:(UPCardsCarousel *)carousel didTouchCardAtIndex:(NSUInteger)index;
 - (void)carousel:(UPCardsCarousel *)carousel willDisplayCardAtIndex:(NSUInteger)index;
-- (void)carousel:(UPCardsCarousel *)carousel didDisplayCardAtIndex:(NSUInteger)index;
 - (void)carousel:(UPCardsCarousel *)carousel willHideCardAtIndex:(NSUInteger)index;
+- (void)carousel:(UPCardsCarousel *)carousel didDisplayCardAtIndex:(NSUInteger)index;
 - (void)carousel:(UPCardsCarousel *)carousel didHideCardAtIndex:(NSUInteger)index;
 
 @end
