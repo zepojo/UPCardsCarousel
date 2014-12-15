@@ -59,8 +59,8 @@ typedef enum {
 - (UIView *)carousel:(UPCardsCarousel *)carousel viewForCardAtIndex:(NSUInteger)index;
 
 @optional
-/* If the data source doesn't implement this method, the title banner will not be displayed */
-- (NSString *)carousel:(UPCardsCarousel *)carousel titleForCardAtIndex:(NSUInteger)index;
+/* If the data source doesn't implement this method, the label banner will not be displayed */
+- (NSString *)carousel:(UPCardsCarousel *)carousel labelForCardAtIndex:(NSUInteger)index;
 
 @end
 

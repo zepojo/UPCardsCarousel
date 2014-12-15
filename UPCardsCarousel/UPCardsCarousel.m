@@ -12,7 +12,7 @@
 const static NSUInteger     kMaxVisibleCardsDefault         = 6;
 const static NSUInteger     kHiddenDeckZPositionOffset      = 10;
 const static NSTimeInterval kMovingAnimationDurationDefault = .4f;
-const static CGFloat        kTitlesContainerHeight          = 60;
+const static CGFloat        kLabelsContainerHeight          = 60;
 
 
 @interface UPCardsCarousel() {
@@ -67,7 +67,7 @@ const static CGFloat        kTitlesContainerHeight          = 60;
         if (_dataSource) {
             [self reloadData];
         
-            if([_dataSource respondsToSelector:@selector(carousel:titleForCardAtIndex:)]) {
+            if([_dataSource respondsToSelector:@selector(carousel:labelForCardAtIndex:)]) {
                 [self setLabelBannerPosition:_labelBannerPosition];
             }
             else {
@@ -86,12 +86,12 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     [self setupCardsView];
     _visibleCards = [NSMutableArray new];
     
-    [self setupTitlesView];
+    [self setupLabelsView];
 }
 
 - (void)setupCardsView
 {
-    CGRect frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - kTitlesContainerHeight);
+    CGRect frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - kLabelsContainerHeight);
     _cardsContainer = [[UIView alloc] initWithFrame:frame];
     [_cardsContainer setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
     [_cardsContainer setBackgroundColor:[UIColor clearColor]];
@@ -114,9 +114,9 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     [self addSubview:_cardsContainer];
 }
 
-- (void)setupTitlesView
+- (void)setupLabelsView
 {
-    CGRect frame = CGRectMake(0, 0, self.frame.size.width, kTitlesContainerHeight);
+    CGRect frame = CGRectMake(0, 0, self.frame.size.width, kLabelsContainerHeight);
     _labelBanner = [[UIView alloc] initWithFrame:frame];
     [_labelBanner setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin];
     [_labelBanner setBackgroundColor:[UIColor whiteColor]];
@@ -197,9 +197,13 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     _visibleCardIndex = index - start;
     _visibleCardsOffset = start;
     
-    if([_dataSource respondsToSelector:@selector(carousel:titleForCardAtIndex:)]) {
-        NSString *title = [_dataSource carousel:self titleForCardAtIndex:_visibleCardIndex + _visibleCardsOffset];
-        [_firstLabel setText:title];
+    if([_dataSource respondsToSelector:@selector(carousel:labelForCardAtIndex:)]) {
+        [_firstLabel setFrame:CGRectMake(0, 0, _labelBanner.frame.size.width, _labelBanner.frame.size.height)];
+        [_secondLabel setFrame:CGRectMake(_labelBanner.frame.size.width, 0, _labelBanner.frame.size.width, _labelBanner.frame.size.height)];
+        _activeLabelIndex = 0;
+        
+        NSString *label = [_dataSource carousel:self labelForCardAtIndex:_visibleCardIndex + _visibleCardsOffset];
+        [_firstLabel setText:label];
     }
     
     if(_delegate) {
@@ -388,9 +392,9 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     if([_visibleCards count] == self.maxVisibleCardsCount && _visibleCardIndex < [_visibleCards count] / 2)
         [self addInfiniteCardsForWay:@-1];
     
-    if([_dataSource respondsToSelector:@selector(carousel:titleForCardAtIndex:)]) {
-        NSString *title = [_dataSource carousel:self titleForCardAtIndex:_visibleCardIndex + _visibleCardsOffset];
-        [self performSelector:@selector(showPreviousLabelWithText:) withObject:title afterDelay:.1f];
+    if([_dataSource respondsToSelector:@selector(carousel:labelForCardAtIndex:)]) {
+        NSString *label = [_dataSource carousel:self labelForCardAtIndex:_visibleCardIndex + _visibleCardsOffset];
+        [self performSelector:@selector(showPreviousLabelWithText:) withObject:label afterDelay:.1f];
     }
 }
 
@@ -440,9 +444,9 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     if([_visibleCards count] == self.maxVisibleCardsCount && _visibleCardIndex > [_visibleCards count] / 2)
         [self addInfiniteCardsForWay:@1];
     
-    if([_dataSource respondsToSelector:@selector(carousel:titleForCardAtIndex:)]) {
-        NSString *title = [_dataSource carousel:self titleForCardAtIndex:_visibleCardIndex + _visibleCardsOffset];
-        [self performSelector:@selector(showNextLabelWithText:) withObject:title afterDelay:.1f];
+    if([_dataSource respondsToSelector:@selector(carousel:labelForCardAtIndex:)]) {
+        NSString *label = [_dataSource carousel:self labelForCardAtIndex:_visibleCardIndex + _visibleCardsOffset];
+        [self performSelector:@selector(showNextLabelWithText:) withObject:label afterDelay:.1f];
     }
 }
 
@@ -478,7 +482,7 @@ const static CGFloat        kTitlesContainerHeight          = 60;
 }
 
 
-#pragma mark - Titles Animations
+#pragma mark - Labels Animations
 
 - (void)showNextLabelWithText:(NSString*)text
 {
@@ -542,13 +546,13 @@ const static CGFloat        kTitlesContainerHeight          = 60;
     
     switch (_labelBannerPosition) {
         case UPCardsCarouselLabelBannerPosition_top:
-            cardsContainerFrame.origin.y = kTitlesContainerHeight;
+            cardsContainerFrame.origin.y = kLabelsContainerHeight;
             labelBannerFrame.origin.y = 0;
             resizingMarginMask = UIViewAutoresizingFlexibleBottomMargin;
             break;
         case UPCardsCarouselLabelBannerPosition_bottom:
             cardsContainerFrame.origin.y = 0;
-            labelBannerFrame.origin.y = self.frame.size.height - kTitlesContainerHeight;
+            labelBannerFrame.origin.y = self.frame.size.height - kLabelsContainerHeight;
             resizingMarginMask = UIViewAutoresizingFlexibleTopMargin;
             break;
     }
