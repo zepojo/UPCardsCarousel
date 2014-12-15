@@ -11,8 +11,8 @@
 
 
 typedef enum {
-    UPCardsCarouselLabelBannerPosition_top = 0,
-    UPCardsCarouselLabelBannerPosition_bottom
+    UPCardsCarouselLabelBannerPosition_bottom = 0,
+    UPCardsCarouselLabelBannerPosition_top
 } UPCardsCarouselLabelBannerPosition_e;
 
 

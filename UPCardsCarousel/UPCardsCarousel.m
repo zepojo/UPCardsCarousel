@@ -64,8 +64,17 @@ const static CGFloat        kTitlesContainerHeight          = 60;
 {
     if (_dataSource != dataSource) {
         _dataSource = dataSource;
-        if (_dataSource)
+        if (_dataSource) {
             [self reloadData];
+        
+            if([_dataSource respondsToSelector:@selector(carousel:titleForCardAtIndex:)]) {
+                [self setLabelBannerPosition:_labelBannerPosition];
+            }
+            else {
+                [_labelBanner setHidden:YES];
+                [_cardsContainer setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+            }
+        }
     }
 }
 
