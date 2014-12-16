@@ -11,9 +11,9 @@
 
 
 typedef enum {
-    UPCardsCarouselLabelBannerPosition_bottom = 0,
-    UPCardsCarouselLabelBannerPosition_top
-} UPCardsCarouselLabelBannerPosition_e;
+    UPCardsCarouselLabelBannerLocation_bottom = 0,
+    UPCardsCarouselLabelBannerLocation_top
+} UPCardsCarouselLabelBannerLocation_e;
 
 
 @protocol UPCardsCarouselDataSource, UPCardsCarouselDelegate;
@@ -29,6 +29,7 @@ typedef enum {
 @property (nonatomic, readwrite) BOOL doubleTapToTop;
 
 @property (nonatomic, strong)    UIView *labelBanner;
+@property (nonatomic, readwrite) UPCardsCarouselLabelBannerLocation_e labelBannerPosition;
 
 
 /* Reloads the carousel data and recreates the visible cards
@@ -47,7 +48,6 @@ typedef enum {
 
 - (void)setLabelFont:(UIFont *)font;
 - (void)setLabelTextColor:(UIColor*)color;
-- (void)setLabelBannerPosition:(UPCardsCarouselLabelBannerPosition_e)labelBannerPosition;
 
 @end
 
