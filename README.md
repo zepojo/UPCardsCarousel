@@ -13,6 +13,13 @@ Works for iPhone.
 
 ## Installation
 
+### CocoaPods
+
+UPCardsCarousel is available through [CocoaPods](http://cocoapods.org). To install
+it, simply add the following line to your Podfile:
+
+`pod "UPCardsCarousel"`
+
 ### Manual
 
 Simply copy the folder `UPCardsCarousel` to your project and import it in XCode.
