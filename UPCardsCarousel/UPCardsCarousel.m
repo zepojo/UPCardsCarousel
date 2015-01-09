@@ -189,7 +189,7 @@ const static CGFloat        kLabelsContainerHeight          = 60;
         NSInteger zIndex = visible ? _visibleDeckZPositionOffset+(cardsCount-1-offset) : _hiddenDeckZPositionOffset+offset;
         [card.layer setZPosition:zIndex];
         
-        [_cardsContainer addSubview:card];
+        [_cardsContainer insertSubview:card atIndex:0];
         
         [_visibleCards addObject:card];
     }
@@ -235,7 +235,7 @@ const static CGFloat        kLabelsContainerHeight          = 60;
     [newCard setFrame:[oldCard frame]];
     [newCard.layer setAffineTransform:transform];
     [newCard.layer setZPosition:[oldCard.layer zPosition]];
-    [_cardsContainer addSubview:newCard];
+    [_cardsContainer insertSubview:newCard atIndex:0];
     [oldCard removeFromSuperview];
 }
 
@@ -320,7 +320,7 @@ const static CGFloat        kLabelsContainerHeight          = 60;
         [self positionCard:newCard toVisible:(wayValue == 1)];
         [newCard.layer setZPosition:newCardZPosition];
         [newCard setAlpha:0.0f];
-        [_cardsContainer addSubview:newCard];
+        [_cardsContainer insertSubview:newCard atIndex:0];
         
         for(int i = 0; i < [_visibleCards count]; i++) {
             // Don't recompute the moving card z-index, it will be set at the end of the animation
