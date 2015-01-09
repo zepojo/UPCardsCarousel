@@ -235,7 +235,7 @@ const static CGFloat        kLabelsContainerHeight          = 60;
     [newCard setFrame:[oldCard frame]];
     [newCard.layer setAffineTransform:transform];
     [newCard.layer setZPosition:[oldCard.layer zPosition]];
-    [_cardsContainer insertSubview:newCard atIndex:0];
+    [_cardsContainer addSubview:newCard];
     [oldCard removeFromSuperview];
 }
 
