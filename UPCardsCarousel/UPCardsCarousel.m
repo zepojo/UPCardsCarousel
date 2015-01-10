@@ -244,7 +244,7 @@ const static CGFloat        kLabelsContainerHeight          = 60;
 {
     NSInteger localIndex = index - _visibleCardsOffset;
     
-    if(localIndex < 0 || localIndex >= _numberOfCards)
+    if(localIndex < 0 || localIndex >= [_visibleCards count])
         return nil;
     
     return [_visibleCards objectAtIndex:localIndex];
