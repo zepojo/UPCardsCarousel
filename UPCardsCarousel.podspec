@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "UPCardsCarousel"
-  s.version          = "1.0.1"
+  s.version          = "1.0.2"
   s.summary          = "A cards based carousel for iOS."
   s.description      = "UPCardsCarousel is a carousel with a fancy cards based UI for iOS."
   s.homepage         = "https://github.com/ink-spot/UPCardsCarousel"
