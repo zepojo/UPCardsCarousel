@@ -127,8 +127,8 @@ const static CGFloat        kLabelsContainerHeight          = 60;
         [label setTextAlignment:NSTextAlignmentCenter];
         return label;
     };
-    _firstLabel = setupLabel(CGRectMake(0, 0, frame.size.width, frame.size.height));
-    _secondLabel = setupLabel(CGRectMake(frame.size.width, 0, frame.size.width, frame.size.height));
+    _firstLabel = setupLabel(CGRectMake(20, 0, frame.size.width-40, frame.size.height));
+    _secondLabel = setupLabel(CGRectMake(frame.size.width+20, 0, frame.size.width-40, frame.size.height));
     [_labelBanner addSubview:_firstLabel];
     [_labelBanner addSubview:_secondLabel];
     
@@ -197,8 +197,8 @@ const static CGFloat        kLabelsContainerHeight          = 60;
     _visibleCardsOffset = start;
     
     if([_dataSource respondsToSelector:@selector(carousel:labelForCardAtIndex:)]) {
-        [_firstLabel setFrame:CGRectMake(0, 0, _labelBanner.frame.size.width, _labelBanner.frame.size.height)];
-        [_secondLabel setFrame:CGRectMake(_labelBanner.frame.size.width, 0, _labelBanner.frame.size.width, _labelBanner.frame.size.height)];
+        [_firstLabel setFrame:CGRectMake(20, 0, _labelBanner.frame.size.width-40, _labelBanner.frame.size.height)];
+        [_secondLabel setFrame:CGRectMake(_labelBanner.frame.size.width+20, 0, _labelBanner.frame.size.width-40, _labelBanner.frame.size.height)];
         _activeLabelIndex = 0;
         
         NSString *label = [_dataSource carousel:self labelForCardAtIndex:_visibleCardIndex + _visibleCardsOffset];
@@ -499,7 +499,7 @@ const static CGFloat        kLabelsContainerHeight          = 60;
     UILabel *inactiveLabel = (_activeLabelIndex == 0) ? _secondLabel : _firstLabel;
     
     CGRect inactiveFrame = inactiveLabel.frame;
-    inactiveFrame.origin.x = self.frame.size.width * way;
+    inactiveFrame.origin.x = (self.frame.size.width * way) + 20;
     [inactiveLabel setFrame:inactiveFrame];
     
     [inactiveLabel setText:text];
