@@ -38,17 +38,24 @@ const static CGFloat        kLabelsContainerHeight          = 60;
 @implementation UPCardsCarousel
 
 
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self setupElements];
+        [self setDefaultValues];
+    }
+    return self;
+}
+
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
         [self setupElements];
+        [self setDefaultValues];
         
-        /* Default values */
-        [self setLabelBannerPosition:UPCardsCarouselLabelBannerLocation_bottom];
-        [self setMaxVisibleCardsCount:kMaxVisibleCardsDefault];
-        [self setMovingAnimationDuration:kMovingAnimationDurationDefault];
-        [self setDoubleTapToTop:YES];
     }
     return self;
 }
@@ -79,6 +86,15 @@ const static CGFloat        kLabelsContainerHeight          = 60;
 
 
 #pragma mark - UI Set Up
+
+-(void) setDefaultValues
+{
+    [self setLabelBannerPosition:UPCardsCarouselLabelBannerLocation_bottom];
+    [self setMaxVisibleCardsCount:kMaxVisibleCardsDefault];
+    [self setMovingAnimationDuration:kMovingAnimationDurationDefault];
+    [self setDoubleTapToTop:YES];
+}
+
 
 - (void)setupElements
 {
